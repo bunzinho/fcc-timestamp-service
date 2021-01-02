@@ -58,7 +58,7 @@ func convert(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		w.Write([]byte("{\"error\":\"Invalid Date\"}"))
+		w.Write([]byte(`{"error":"Invalid Date"}`))
 		return
 	}
 
@@ -72,8 +72,9 @@ func convert(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.Handle("/", http.RedirectHandler("/api/timestamp", http.StatusTemporaryRedirect))
 	http.HandleFunc("/api/timestamp", timestamp)
 	http.HandleFunc("/api/timestamp/", convert)
-	log.Println("Timestamp service started port 9000")
-	log.Fatalln(http.ListenAndServe(":9000", nil))
+	log.Println("Timestamp service started port 8080")
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
