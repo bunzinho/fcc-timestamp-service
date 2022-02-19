@@ -5,14 +5,6 @@ import (
 	"time"
 )
 
-func unixNanoToMilliseconds(nanoseconds int64) int64 {
-	return nanoseconds / (int64(time.Millisecond) / int64(time.Nanosecond))
-}
-
-func unixMillisecondsToTime(milliseconds int64) time.Time {
-	return time.Unix(0, milliseconds*int64(time.Millisecond))
-}
-
 func parseTime(s string) (time.Time, error) {
 	patterns := []string{
 		time.RFC3339,

@@ -19,11 +19,16 @@ func timestamp(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	t := time.Now()
-	json, _ := json.Marshal(&unixUTCTime{
-		unixNanoToMilliseconds(t.UnixNano()),
+
+	unix := &unixUTCTime{
+		t.UnixMilli(),
 		t.UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
-	})
-	w.Write(json)
+	}
+
+	err := json.NewEncoder(w).Encode(unix)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func convert(w http.ResponseWriter, r *http.Request) {
@@ -36,21 +41,21 @@ func convert(w http.ResponseWriter, r *http.Request) {
 	if timeFromURL == "" {
 		t := time.Now()
 		writeJSON.Encode(&unixUTCTime{
-			unixNanoToMilliseconds(t.UnixNano()),
+			t.UnixMilli(),
 			t.UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
 		})
 		return
 	}
 
-	milliseconds, err := strconv.ParseInt(timeFromURL, 10, 64)
+	ms, err := strconv.ParseInt(timeFromURL, 10, 64)
 	if err == nil {
-		t := unixMillisecondsToTime(milliseconds)
-		writeJSON.Encode(&unixUTCTime{
-			unixNanoToMilliseconds(t.UnixNano()),
+		t := time.UnixMilli(ms)
+		err = writeJSON.Encode(&unixUTCTime{
+			t.UnixMilli(),
 			t.UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
 		})
 		if err != nil {
-			log.Panicln(err)
+			log.Println(err)
 		}
 		return
 	}
@@ -62,12 +67,12 @@ func convert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON.Encode(&unixUTCTime{
-		unixNanoToMilliseconds(t.UnixNano()),
+	err = writeJSON.Encode(&unixUTCTime{
+		t.UnixMilli(),
 		t.UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"),
 	})
 	if err != nil {
-		log.Panicln(err)
+		log.Println(err)
 	}
 }
 
